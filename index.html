@@ -69,7 +69,7 @@ function proj(f,a,n,z){let q=1/Math.tan(f/2),nf=1/(n-z),m=Array(16).fill(0);m[0]
 function look(e,c){let z=unit([e[0]-c[0],e[1]-c[1],e[2]-c[2]]),x=unit(cross([0,1,0],z)),y=cross(z,x);return[x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-dot(x,e),-dot(y,e),-dot(z,e),1]}
 function draw(b,m,col,glow,vp,eye,alpha=1){g.bindBuffer(g.ARRAY_BUFFER,b.p);g.enableVertexAttribArray(U.p);g.vertexAttribPointer(U.p,3,g.FLOAT,false,0,0);g.bindBuffer(g.ARRAY_BUFFER,b.n);g.enableVertexAttribArray(U.n);g.vertexAttribPointer(U.n,3,g.FLOAT,false,0,0);g.uniformMatrix4fv(U.M,false,new Float32Array(m));g.uniformMatrix4fv(U.m,false,new Float32Array(mul(vp,m)));g.uniform3fv(U.col,col);g.uniform1f(U.gl,glow||0);g.uniform3fv(U.eye,eye);g.uniform1f(U.a,alpha);if(alpha<1){g.enable(g.BLEND);g.blendFunc(g.SRC_ALPHA,g.ONE_MINUS_SRC_ALPHA);g.depthMask(false)}else{g.disable(g.BLEND);g.depthMask(true)}g.drawArrays(b.mode,0,b.count);if(alpha<1){g.depthMask(true);g.disable(g.BLEND)}}
 const foodSpots=[[-13,-10],[12,9],[-17,1],[2,17],[17,-14]],waterSpots=[[-2,-17],[14,-10],[-16,-13],[16,14],[-3,18]],food=foodSpots.slice(0,2),water=waterSpots.slice(0,2),lamps=[[-15,-15],[14,13],[-15,14],[15,-15]];
-function makeFly(){return{x:0,z:0,y:.96,h:22,d:18,mode:"wander",motion:"flying",flightBlend:0,motionTimer:0,timer:0,dir:0,wing:0,wingDrive:0,legDrive:0,target:null,vx:0,vz:0,decision:0,ground:0,lay:0,bank:0,proboscis:0,antenna:0,motors:{wings:[0,0],legs:Array.from({length:6},()=>({swing:0,lift:0,tuck:0,clean:0,signal:.12})),antennae:[0,0],eyes:[0,0],abdomen:[0,0,0,0,0],palps:[0,0],head:0,headPitch:0,headRoll:0,breath:.35},legPhase:Math.random()*6,phase:Math.random()*10,statusTimer:.7,statusText:"Waking up and exploring"}}let fly=makeFly(),cam={yaw:.75,pitch:.55,r:18.5,x:0,y:0,z:0,free:false},brain=null,signalBrain=null,paused=false,clock=0,last=0,heldKeys=new Set();function updateSettings(){sv.textContent=Number(speed.value).toFixed(1)+"×";cv.textContent=Math.round(Number(curiosity.value))+"%";nv.textContent=Number(needPace.value).toFixed(1)+"×";food.splice(0,food.length,...foodSpots.slice(0,Number(foodCount.value)));water.splice(0,water.length,...waterSpots.slice(0,Number(waterCount.value)));foodTypeLabel.textContent=foodType.options[foodType.selectedIndex].text;foodCountValue.textContent=food.length;waterCountValue.textContent=water.length;lightPullValue.textContent=lightPull.value+"%";zoomValue.textContent=cam.r.toFixed(1);let icons={berry:"🍓",fruit:"🍊",pollen:"🌼"};foodLegend.textContent=icons[foodType.value]+" "+foodTypeLabel.textContent+" · "+food.length+" spots"}speed.oninput=updateSettings;curiosity.oninput=updateSettings;needPace.oninput=updateSettings;foodType.onchange=updateSettings;foodCount.oninput=updateSettings;waterCount.oninput=updateSettings;lightPull.oninput=updateSettings;zoomInput.oninput=()=>{cam.r=Number(zoomInput.value);updateSettings()};updateSettings();behavior.onchange=()=>{behaviorLabel.textContent=behavior.options[behavior.selectedIndex].text;fly.target=null;fly.decision=0;fly.motionTimer=0;if(behavior.value==="auto"){fly.mode="wander";fly.motion="walking";state.textContent="The fly is back in charge"}else{fly.mode="manual";state.textContent="Action: "+behaviorLabel.textContent}};function setFreeCamera(enabled){if(enabled){cam.x=fly.x;cam.y=0;cam.z=fly.z}cam.free=enabled;E("freeCam").textContent=enabled?"Free cam: on":"Free cam: off";state.textContent=enabled?"Free camera — the fly keeps exploring":"The camera is following the fly"}E("freeCam").onclick=()=>setFreeCamera(!cam.free);E("pause").onclick=()=>{paused=!paused;E("pause").textContent=paused?"▶ Resume":"Ⅱ Pause";state.textContent=paused?"Paused — fly is resting":"The fly is back to exploring"};E("home").onclick=()=>{cam.yaw=.75;cam.pitch=.55;cam.r=18.5;cam.free=false;E("freeCam").textContent="Free cam: off";zoomInput.value=cam.r;updateSettings()};addEventListener("keydown",e=>{let key=e.key.toLowerCase(),ui=e.target instanceof HTMLElement&&e.target.matches("input,select,button");if(e.code==="Space"&&!ui){e.preventDefault();E("pause").click()}if(key==="r"&&!ui)E("reset").click();if(cam.free&&!ui&&["w","a","s","d","q","e","shift"].includes(key)){heldKeys.add(key);e.preventDefault()}});addEventListener("keyup",e=>heldKeys.delete(e.key.toLowerCase()));addEventListener("blur",()=>heldKeys.clear());
+function makeFly(){return{x:0,z:0,y:.96,h:22,d:18,mode:"wander",motion:"flying",flightBlend:0,motionTimer:0,timer:0,dir:0,wing:0,wingDrive:0,legDrive:0,target:null,vx:0,vz:0,decision:0,ground:0,lay:0,bank:0,proboscis:0,antenna:0,motors:{wings:[0,0],legs:Array.from({length:6},()=>({swing:0,lift:0,tuck:0,clean:0,signal:.12})),antennae:[0,0],eyes:[0,0],abdomen:[0,0,0,0,0],palps:[0,0],head:0,headPitch:0,headRoll:0,breath:.35},legPhase:Math.random()*6,phase:Math.random()*10,statusTimer:.7,statusText:"Waking up and exploring"}}let fly=makeFly(),cam={yaw:.75,pitch:.38,r:18.5,x:0,y:0,z:0,free:false},brain=null,signalBrain=null,paused=false,clock=0,last=0,heldKeys=new Set();function updateSettings(){sv.textContent=Number(speed.value).toFixed(1)+"×";cv.textContent=Math.round(Number(curiosity.value))+"%";nv.textContent=Number(needPace.value).toFixed(1)+"×";food.splice(0,food.length,...foodSpots.slice(0,Number(foodCount.value)));water.splice(0,water.length,...waterSpots.slice(0,Number(waterCount.value)));foodTypeLabel.textContent=foodType.options[foodType.selectedIndex].text;foodCountValue.textContent=food.length;waterCountValue.textContent=water.length;lightPullValue.textContent=lightPull.value+"%";zoomValue.textContent=cam.r.toFixed(1);let icons={berry:"🍓",fruit:"🍊",pollen:"🌼"};foodLegend.textContent=icons[foodType.value]+" "+foodTypeLabel.textContent+" · "+food.length+" spots"}speed.oninput=updateSettings;curiosity.oninput=updateSettings;needPace.oninput=updateSettings;foodType.onchange=updateSettings;foodCount.oninput=updateSettings;waterCount.oninput=updateSettings;lightPull.oninput=updateSettings;zoomInput.oninput=()=>{cam.r=Number(zoomInput.value);updateSettings()};updateSettings();behavior.onchange=()=>{behaviorLabel.textContent=behavior.options[behavior.selectedIndex].text;fly.target=null;fly.decision=0;fly.motionTimer=0;if(behavior.value==="auto"){fly.mode="wander";fly.motion="walking";state.textContent="The fly is back in charge"}else{fly.mode="manual";state.textContent="Action: "+behaviorLabel.textContent}};function setFreeCamera(enabled){if(enabled){cam.x=fly.x;cam.y=0;cam.z=fly.z}cam.free=enabled;E("freeCam").textContent=enabled?"Free cam: on":"Free cam: off";state.textContent=enabled?"Free camera — the fly keeps exploring":"The camera is following the fly"}E("freeCam").onclick=()=>setFreeCamera(!cam.free);E("pause").onclick=()=>{paused=!paused;E("pause").textContent=paused?"▶ Resume":"Ⅱ Pause";state.textContent=paused?"Paused — fly is resting":"The fly is back to exploring"};E("home").onclick=()=>{cam.yaw=.75;cam.pitch=.55;cam.r=18.5;cam.free=false;E("freeCam").textContent="Free cam: off";zoomInput.value=cam.r;updateSettings()};addEventListener("keydown",e=>{let key=e.key.toLowerCase(),ui=e.target instanceof HTMLElement&&e.target.matches("input,select,button");if(e.code==="Space"&&!ui){e.preventDefault();E("pause").click()}if(key==="r"&&!ui)E("reset").click();if(cam.free&&!ui&&["w","a","s","d","q","e","shift"].includes(key)){heldKeys.add(key);e.preventDefault()}});addEventListener("keyup",e=>heldKeys.delete(e.key.toLowerCase()));addEventListener("blur",()=>heldKeys.clear());
 function reset(){fly=makeFly()}E("reset").onclick=reset;
 function closest(a){return a.reduce((x,y)=>Math.hypot(fly.x-x[0],fly.z-x[1])<Math.hypot(fly.x-y[0],fly.z-y[1])?x:y)}
 function chooseWanderTarget(forceMove=false){
@@ -254,8 +254,15 @@ function think(dt){
 }
 function render(){let d=Math.min(devicePixelRatio||1,2),w=Math.floor(innerWidth*d),h=Math.floor(innerHeight*d);if(c.width!==w||c.height!==h){c.width=w;c.height=h;g.viewport(0,0,w,h)}g.enable(g.DEPTH_TEST);g.clearColor(.63,.82,.9,1);g.clear(g.COLOR_BUFFER_BIT|g.DEPTH_BUFFER_BIT);
 let center=cam.free?[cam.x,cam.y,cam.z]:[fly.x,0,fly.z],cs=Math.cos(cam.pitch),eye=[center[0]+Math.sin(cam.yaw)*cs*cam.r,center[1]+cam.pitch*cam.r,center[2]+Math.cos(cam.yaw)*cs*cam.r],vp=mul(proj(Math.PI/4,w/h,.1,90),look(eye,center));
-draw(C,mul(tr(0,-.22,0),sc(22,.22,22)),[.27,.48,.28],0,vp,eye);draw(G,I(),[.49,.69,.43],0,vp,eye);
-draw(C,mul(tr(0,-.22,0),sc(22,.22,22)),[.27,.48,.28],0,vp,eye);draw(G,I(),[.44,.62,.39],0,vp,eye);
+draw(C,mul(tr(0,-.22,0),sc(22,.22,22)),[.27,.48,.28],0,vp,eye);draw(G,I(),[.42,.54,.40],0,vp,eye,.24);
+// Slow, soft clouds give the garden a little depth above the tree line.
+for(let i=0;i<4;i++){
+  let a=i*1.571+.4,x=Math.cos(a)*19+Math.sin(clock*.04+i)*.35,z=Math.sin(a)*19,y=3.35+(i%2)*.22;
+  for(let k=0;k<3;k++){
+    let px=x+(k-1)*.72,pz=z+(k===1?0:.08),py=y+(k===1?.18:0),size=k===1?.92:.72;
+    draw(S,mul(tr(px,py,pz),sc(size,k===1?.31:.27,k===1?.7:.56)),[.9,.96,1],.025,vp,eye);
+  }
+}
 // A meandering strip of soft earth leads across the garden.
 for(let i=0;i<51;i++){
   let t=i/50,x=-20+40*t,z=2+Math.sin(t*Math.PI*2)*5.1,slope=5.1*Math.PI*2/40*Math.cos(t*Math.PI*2),angle=-Math.atan2(slope,1);
@@ -274,7 +281,7 @@ for(let i=0;i<6;i++){
   for(let side of [-1,1])draw(S,mul(tr(x+side*.11,.17,z+side*.025),mul(rz(side*.38+sway),sc(.12,.025,.04))),[.35,.54,.25],0,vp,eye);
 }
 // Broad, soft ground patches break up the perfect green plate.
-for(let i=0;i<52;i++){
+for(let i=0;i<40;i++){
   let x=((i*97+31)%435)/10-21.75,z=((i*173+71)%431)/10-21.55,pathZ=2+Math.sin(((x+20)/40)*Math.PI*2)*5.1;
   if([...food,...water].some(p=>Math.hypot(x-p[0],z-p[1])<1.05)||Math.hypot(x+2.2,(z+17.1)*.78)<3.05||Math.abs(z-pathZ)<.58)continue;
   let tone=i%4,patch=tone===0?[.33,.5,.31]:tone===1?[.39,.56,.34]:tone===2?[.36,.53,.32]:[.42,.57,.35],yaw=i*2.399;
@@ -282,6 +289,16 @@ for(let i=0;i<52;i++){
   for(let k=0;k<2;k++){
     let a=yaw+k*2.18,sway=Math.sin(clock*1.5+i+k)*.08,gx=x+Math.cos(a)*.11,gz=z+Math.sin(a)*.09,grass=i%3===0?[.25,.43,.22]:[.31,.48,.25];
     draw(T,mul(tr(gx,.008,gz),mul(ry(a),mul(rz(sway),sc(.009,.055+(i%3)*.012,.009)))),grass,0,vp,eye);
+  }
+}
+// Taller grass grows in little uneven clumps across the meadow.
+for(let i=0;i<22;i++){
+  let x=((i*137+19)%371)/10-18.55,z=((i*83+61)%367)/10-18.35,pathZ=2+Math.sin(((x+20)/40)*Math.PI*2)*5.1;
+  if([...food,...water].some(p=>Math.hypot(x-p[0],z-p[1])<.9)||Math.hypot(x+2.2,(z+17.1)*.78)<3.8||Math.abs(z-pathZ)<.85)continue;
+  let yaw=i*2.399,sway=Math.sin(clock*.8+i)*.08,leaf=i%3===0?[.22,.39,.19]:i%3===1?[.30,.46,.23]:[.36,.49,.25];
+  for(let k=0;k<3;k++){
+    let a=yaw+k*2.094,h=.18+((i+k)%4)*.045,gx=x+Math.cos(a)*.065,gz=z+Math.sin(a)*.065;
+    draw(T,mul(tr(gx,.012,gz),mul(ry(a),mul(rz(-.16+sway),sc(.012,h,.012)))),leaf,0,vp,eye);
   }
 }
 // Pebbles and bark fragments sit along the path and garden edges.
@@ -293,17 +310,17 @@ for(let i=0;i<20;i++){
   if(i%4===0)draw(S,mul(tr(x+.12,.008,z+.07),mul(ry(i),sc(size*.62,.016,size*.55))),[.42,.39,.31],0,vp,eye);
 }
 // Low shrubs and leafy trees make a soft border without closing the world in.
-for(let i=0;i<8;i++){
-  let a=i*Math.PI/4+.18,x=Math.cos(a)*20.2,z=Math.sin(a)*20.2,sway=Math.sin(clock*.75+i)*.035,wood=i%2?[.31,.2,.12]:[.39,.26,.15],leaf=i%3===0?[.17,.36,.18]:i%3===1?[.22,.42,.19]:[.25,.45,.21];
+for(let i=0;i<10;i++){
+  let a=i*2.399+.18,r=18.4+(i%3)*1.05,x=Math.cos(a)*r,z=Math.sin(a)*r,sway=Math.sin(clock*.75+i)*.035,wood=i%2?[.31,.2,.12]:[.39,.26,.15],leaf=i%3===0?[.17,.36,.18]:i%3===1?[.22,.42,.19]:[.25,.45,.21];
   draw(T,mul(tr(x,.01,z),mul(rz(sway),sc(.085,1.18,.085))),wood,0,vp,eye);
   for(let side of [-1,1])draw(T,mul(tr(x,.58,z),mul(ry(a),mul(rz(side*.62),sc(.035,.62,.035)))),wood,0,vp,eye);
-  for(let k=0;k<5;k++){
+  for(let k=0;k<7;k++){
     let angle=a+k*2.4,level=1.13+(k%3)*.18,offset=.27+(k%2)*.12;
     draw(S,mul(tr(x+Math.cos(angle)*offset,level+Math.sin(k*2)*.08,z+Math.sin(angle)*offset),mul(ry(angle),sc(.33,.2,.29))),leaf,0,vp,eye);
   }
 }
 // Small wildflowers grow in scattered clumps rather than in a neat row.
-for(let i=0;i<11;i++){
+for(let i=0;i<16;i++){
   let x=((i*157+47)%385)/10-19.25,z=((i*113+29)%379)/10-18.95,pathZ=2+Math.sin(((x+20)/40)*Math.PI*2)*5.1;
   if([...food,...water].some(p=>Math.hypot(x-p[0],z-p[1])<1.15)||Math.hypot(x+2.2,(z+17.1)*.78)<3.6||Math.abs(z-pathZ)<1)continue;
   let sway=Math.sin(clock+i*1.3)*.025,flowerColors=[[.95,.72,.31],[.91,.84,.67],[.79,.54,.84],[.94,.49,.35]],petal=flowerColors[i%flowerColors.length];
