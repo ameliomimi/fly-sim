@@ -254,13 +254,13 @@ function think(dt){
 }
 function render(){let d=Math.min(devicePixelRatio||1,2),w=Math.floor(innerWidth*d),h=Math.floor(innerHeight*d);if(c.width!==w||c.height!==h){c.width=w;c.height=h;g.viewport(0,0,w,h)}g.enable(g.DEPTH_TEST);g.clearColor(.63,.82,.9,1);g.clear(g.COLOR_BUFFER_BIT|g.DEPTH_BUFFER_BIT);
 let center=cam.free?[cam.x,cam.y,cam.z]:[fly.x,0,fly.z],cs=Math.cos(cam.pitch),eye=[center[0]+Math.sin(cam.yaw)*cs*cam.r,center[1]+cam.pitch*cam.r,center[2]+Math.cos(cam.yaw)*cs*cam.r],vp=mul(proj(Math.PI/4,w/h,.1,90),look(eye,center));
-draw(C,mul(tr(0,-.22,0),sc(22,.22,22)),[.27,.48,.28],0,vp,eye);draw(G,I(),[.38,.52,.38],0,vp,eye,.12);
+draw(C,mul(tr(0,-.22,0),sc(22,.22,22)),[.27,.48,.28],0,vp,eye);
 // Slow, soft clouds give the garden a little depth above the tree line.
 for(let i=0;i<3;i++){
   let a=cam.yaw+Math.PI+(i-1)*.52,d=18+i*2,x=center[0]+Math.sin(a)*d+Math.sin(clock*.035+i)*.35,z=center[2]+Math.cos(a)*d+Math.cos(clock*.025+i)*.2,y=3.75+(i%2)*.18;
   for(let k=0;k<3;k++){
     let px=x+(k-1)*.72,pz=z+(k===1?0:.08),py=y+(k===1?.18:0),size=k===1?.92:.72;
-    draw(S,mul(tr(px,py,pz),sc(size,k===1?.31:.27,k===1?.7:.56)),[.9,.96,1],.025,vp,eye);
+    draw(S,mul(tr(px,py,pz),sc(size,k===1?.42:.35,k===1?.7:.56)),[.9,.96,1],.025,vp,eye);
   }
 }
 // A meandering strip of soft earth leads across the garden.
@@ -281,11 +281,11 @@ for(let i=0;i<6;i++){
   for(let side of [-1,1])draw(S,mul(tr(x+side*.11,.17,z+side*.025),mul(rz(side*.38+sway),sc(.12,.025,.04))),[.35,.54,.25],0,vp,eye);
 }
 // Broad, soft ground patches break up the perfect green plate.
-for(let i=0;i<40;i++){
+for(let i=0;i<56;i++){
   let x=((i*97+31)%435)/10-21.75,z=((i*173+71)%431)/10-21.55,pathZ=2+Math.sin(((x+20)/40)*Math.PI*2)*5.1;
   if([...food,...water].some(p=>Math.hypot(x-p[0],z-p[1])<1.05)||Math.hypot(x+2.2,(z+17.1)*.78)<3.05||Math.abs(z-pathZ)<.58)continue;
   let tone=i%4,patch=tone===0?[.33,.5,.31]:tone===1?[.39,.56,.34]:tone===2?[.36,.53,.32]:[.42,.57,.35],yaw=i*2.399;
-  draw(S,mul(tr(x,.003,z),mul(ry(yaw),sc(.34+(i%3)*.09,.004,.21+(i%2)*.07))),patch,0,vp,eye);
+  draw(S,mul(tr(x,.003,z),mul(ry(yaw),sc(.47+(i%3)*.1,.004,.28+(i%2)*.08))),patch,0,vp,eye);
   for(let k=0;k<2;k++){
     let a=yaw+k*2.18,sway=Math.sin(clock*1.5+i+k)*.08,gx=x+Math.cos(a)*.11,gz=z+Math.sin(a)*.09,grass=i%3===0?[.25,.43,.22]:[.31,.48,.25];
     draw(T,mul(tr(gx,.008,gz),mul(ry(a),mul(rz(sway),sc(.009,.055+(i%3)*.012,.009)))),grass,0,vp,eye);
