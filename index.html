@@ -52,7 +52,7 @@ body:not(.in-game) #world{filter:brightness(.36) saturate(.82) blur(1px);transfo
 "use strict";
 const c=document.getElementById("world"),g=c.getContext("webgl",{antialias:true}),E=id=>document.getElementById(id),state=E("state"),hb=E("hb"),tb=E("tb"),hv=E("hv"),tv=E("tv"),speed=E("speed"),sv=E("sv"),curiosity=E("curiosity"),cv=E("cv"),needPace=E("needPace"),nv=E("nv"),foodType=E("foodType"),foodTypeLabel=E("foodTypeLabel"),foodCount=E("foodCount"),foodCountValue=E("foodCountValue"),waterCount=E("waterCount"),waterCountValue=E("waterCountValue"),lightPull=E("lightPull"),lightPullValue=E("lightPullValue"),foodLegend=E("foodLegend"),zoomInput=E("zoom"),zoomValue=E("zoomValue"),behavior=E("behavior"),behaviorLabel=E("behaviorLabel");
 if(!g){state.textContent="This browser needs WebGL for the 3D world.";return}
-const V="attribute vec3 p;attribute vec3 n;uniform mat4 mvp;uniform mat4 model;varying vec3 N;varying vec3 W;void main(){vec4 w=model*vec4(p,1.);W=w.xyz;N=normalize(mat3(model)*n);gl_PointSize=2.2;gl_Position=mvp*vec4(p,1.);}";
+const V="attribute vec3 p;attribute vec3 n;uniform mat4 mvp;uniform mat4 model;varying vec3 N;varying vec3 W;void main(){vec4 w=model*vec4(p,1.);W=w.xyz;mat3 m=mat3(model);vec3 s=vec3(length(m[0]),length(m[1]),length(m[2]));N=normalize(m*(n/(s*s)));gl_PointSize=2.2;gl_Position=mvp*vec4(p,1.);}";
 const F="precision mediump float;uniform vec3 color;uniform float glow;uniform float alpha;uniform vec3 eye;varying vec3 N;varying vec3 W;void main(){vec3 nn=normalize(N),v=normalize(eye-W),l=normalize(vec3(-.45,.85,.5)),h=normalize(v+l);float d=max(dot(nn,l),0.);float spec=pow(max(dot(nn,h),0.),42.)*.28;float rim=pow(1.-max(dot(v,nn),0.),2.);vec3 c=color*(.34+.66*d)+vec3(1.,.83,.68)*spec+color*glow+vec3(.12,.2,.3)*rim*.08;gl_FragColor=vec4(c,alpha);}";
 function shader(t,s){let x=g.createShader(t);g.shaderSource(x,s);g.compileShader(x);if(!g.getShaderParameter(x,g.COMPILE_STATUS))throw Error(g.getShaderInfoLog(x));return x}
 let pg=g.createProgram();g.attachShader(pg,shader(g.VERTEX_SHADER,V));g.attachShader(pg,shader(g.FRAGMENT_SHADER,F));g.linkProgram(pg);g.useProgram(pg);let U={p:g.getAttribLocation(pg,"p"),n:g.getAttribLocation(pg,"n"),m:g.getUniformLocation(pg,"mvp"),M:g.getUniformLocation(pg,"model"),col:g.getUniformLocation(pg,"color"),gl:g.getUniformLocation(pg,"glow"),eye:g.getUniformLocation(pg,"eye"),a:g.getUniformLocation(pg,"alpha")};
@@ -254,10 +254,10 @@ function think(dt){
 }
 function render(){let d=Math.min(devicePixelRatio||1,2),w=Math.floor(innerWidth*d),h=Math.floor(innerHeight*d);if(c.width!==w||c.height!==h){c.width=w;c.height=h;g.viewport(0,0,w,h)}g.enable(g.DEPTH_TEST);g.clearColor(.63,.82,.9,1);g.clear(g.COLOR_BUFFER_BIT|g.DEPTH_BUFFER_BIT);
 let center=cam.free?[cam.x,cam.y,cam.z]:[fly.x,0,fly.z],cs=Math.cos(cam.pitch),eye=[center[0]+Math.sin(cam.yaw)*cs*cam.r,center[1]+cam.pitch*cam.r,center[2]+Math.cos(cam.yaw)*cs*cam.r],vp=mul(proj(Math.PI/4,w/h,.1,90),look(eye,center));
-draw(C,mul(tr(0,-.22,0),sc(22,.22,22)),[.27,.48,.28],0,vp,eye);draw(G,I(),[.42,.54,.40],0,vp,eye,.24);
+draw(C,mul(tr(0,-.22,0),sc(22,.22,22)),[.27,.48,.28],0,vp,eye);draw(G,I(),[.38,.52,.38],0,vp,eye,.12);
 // Slow, soft clouds give the garden a little depth above the tree line.
-for(let i=0;i<4;i++){
-  let a=i*1.571+.4,x=Math.cos(a)*19+Math.sin(clock*.04+i)*.35,z=Math.sin(a)*19,y=3.35+(i%2)*.22;
+for(let i=0;i<3;i++){
+  let a=cam.yaw+Math.PI+(i-1)*.52,d=18+i*2,x=center[0]+Math.sin(a)*d+Math.sin(clock*.035+i)*.35,z=center[2]+Math.cos(a)*d+Math.cos(clock*.025+i)*.2,y=3.75+(i%2)*.18;
   for(let k=0;k<3;k++){
     let px=x+(k-1)*.72,pz=z+(k===1?0:.08),py=y+(k===1?.18:0),size=k===1?.92:.72;
     draw(S,mul(tr(px,py,pz),sc(size,k===1?.31:.27,k===1?.7:.56)),[.9,.96,1],.025,vp,eye);
