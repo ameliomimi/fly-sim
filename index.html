@@ -257,9 +257,9 @@ let center=cam.free?[cam.x,cam.y,cam.z]:[fly.x,0,fly.z],cs=Math.cos(cam.pitch),e
 draw(C,mul(tr(0,-.22,0),sc(22,.22,22)),[.27,.48,.28],0,vp,eye);draw(G,I(),[.49,.69,.43],0,vp,eye);
 draw(C,mul(tr(0,-.22,0),sc(22,.22,22)),[.27,.48,.28],0,vp,eye);draw(G,I(),[.44,.62,.39],0,vp,eye);
 // A meandering strip of soft earth leads across the garden.
-for(let i=0;i<31;i++){
-  let t=i/30,x=-20+40*t,z=2+Math.sin(t*Math.PI*2)*5.1,slope=5.1*Math.PI*2/40*Math.cos(t*Math.PI*2),angle=-Math.atan2(slope,1);
-  draw(S,mul(tr(x,.002,z),mul(ry(angle),sc(.78,.003,.34))),[.40,.32,.23],0,vp,eye,.86);
+for(let i=0;i<51;i++){
+  let t=i/50,x=-20+40*t,z=2+Math.sin(t*Math.PI*2)*5.1,slope=5.1*Math.PI*2/40*Math.cos(t*Math.PI*2),angle=-Math.atan2(slope,1);
+  draw(C,mul(tr(x,.009,z),mul(ry(angle),sc(.43,.008,.52))),[.47,.35,.23],0,vp,eye);
 }
 // A permanent pond gives the wider habitat a clear landmark.
 draw(S,mul(tr(-2.2,.012,-17.1),mul(ry(-.32),sc(3.2,.012,2.25))),[.38,.43,.29],0,vp,eye);
